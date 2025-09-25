@@ -1376,7 +1376,7 @@
       }
     });
 
-    // Event registration handling
+    // Event registration handling (обновлено: только имя в форме)
     document.getElementById('register-event-btn').addEventListener('click', () => {
       trackEvent('event_register_click');
 
@@ -1388,10 +1388,6 @@
         <form class="apply-form" action="#">
           <label>Как вас зовут?</label>
           <input type="text" name="name" placeholder="Ваше имя" required>
-          <label>Ваш Telegram (@username)</label>
-          <input type="text" name="telegram" placeholder="@username" pattern="@[A-Za-z0-9_]{5,}" required>
-          <label>Email (опционально)</label>
-          <input type="email" name="email" placeholder="example@email.com">
           <button type="submit"><i class="fas fa-paper-plane"></i> Зарегистрироваться</button>
           <button type="button" class="close-button"><i class="fas fa-times"></i> Закрыть</button>
         </form>
@@ -1410,25 +1406,23 @@
       modal.querySelector('.apply-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const telegram = formData.get('telegram');
-        if (!telegram || !telegram.startsWith('@')) {
+        const name = formData.get('name');
+        if (!name || name.trim() === '') {
           if (tg && tg.showPopup) {
             tg.showPopup({
               title: 'Ошибка',
-              message: 'Ошибка в заполнении Telegram',
+              message: 'Укажите ваше имя',
               buttons: [{ type: 'ok' }]
             });
           } else {
-            alert('Ошибка в заполнении Telegram');
+            alert('Укажите ваше имя');
           }
           return;
         }
         const response_id = generateUUID();
         const additional = {
           response_id,
-          name: formData.get('name'),
-          telegram,
-          email: formData.get('email') || ''
+          name: name.trim()
         };
         const eventData = {
           event: 'event_register',
