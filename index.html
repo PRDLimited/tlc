@@ -589,32 +589,6 @@
       font-size: 14px;
     }
 
-    .event-register-btn {
-      background: linear-gradient(135deg, #d5fd02, #b8e002);
-      color: #080808;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 24px;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 16px auto;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(213, 253, 2, 0.3);
-    }
-    .event-register-btn:hover {
-      background: linear-gradient(135deg, #b8e002, #d5fd02);
-      transform: scale(1.05);
-      box-shadow: 0 6px 16px rgba(213, 253, 2, 0.5);
-    }
-    .event-register-btn i {
-      font-size: 18px;
-    }
-
     @media (max-width: 360px) {
       .modal {
         padding: 10px;
@@ -716,7 +690,6 @@
       <li class="menu-item" data-section="articles">Статьи</li>
       <li class="menu-item" data-section="cases">Кейсы</li>
       <li class="menu-item" data-section="vacancies">Вакансии</li>
-      <li class="menu-item" data-section="event">Ивент</li>
     </ul>
   </nav>
 
@@ -880,18 +853,6 @@
     </div>
   </section>
 
-  <section id="event" class="section">
-    <h2 class="section-title">ПРЕДСТОЯЩИЙ ИВЕНТ</h2>
-    <div style="background: #111315; border-radius: 12px; padding: 16px; margin: 16px 0; border: 1px solid #222;">
-      <p style="font-size: 14px; line-height: 1.5; color: #ccc; margin-bottom: 16px;">
-        Приглашаем на эксклюзивное мероприятие The Limited Club! Обсудим последние тренды в гемблинге, поделимся кейсами и networking с топовыми игроками. Дата: 15 октября 2025, Москва (или онлайн). Участие бесплатно для партнеров.
-      </p>
-      <button class="event-register-btn" id="register-event-btn">
-        <i class="fas fa-calendar-plus"></i> Зарегистрироваться
-      </button>
-    </div>
-  </section>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -1037,11 +998,11 @@
     });
 
     document.querySelectorAll('.tg-link').forEach(el => {
-      el.addEventListener('click', (e) => {
+      el.addEventListener('click', function (e) {
         e.preventDefault();
-        const link = el.dataset.link;
+        const link = this.dataset.link;
         if (/^https:\/\/t\.me\//.test(link) && window.Telegram && Telegram.WebApp) {
-          Telegram.WebApp.openTelegramLink(link);
+          Telegram.WebApp.openLink(link);
         } else {
           window.open(link, '_blank');
         }
@@ -1267,7 +1228,7 @@
             const role = button.dataset.role;
             trackEvent('contact_button_click', { role });
             if (/^https:\/\/t\.me\//.test(link) && window.Telegram && Telegram.WebApp) {
-              Telegram.WebApp.openTelegramLink(link);
+              Telegram.WebApp.openLink(link);
             } else {
               window.open(link, '_blank');
             }
@@ -1354,7 +1315,7 @@
                 e.preventDefault();
                 const link = button.dataset.link;
                 if (/^https:\/\/t\.me\//.test(link) && window.Telegram && Telegram.WebApp) {
-                  Telegram.WebApp.openTelegramLink(link);
+                  Telegram.WebApp.openLink(link);
                 } else {
                   window.open(link, '_blank');
                 }
@@ -1370,113 +1331,10 @@
       const link = document.querySelector('.hr-contact').dataset.link;
       trackEvent('hr_contact_click');
       if (/^https:\/\/t\.me\//.test(link) && window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.openTelegramLink(link);
+        Telegram.WebApp.openLink(link);
       } else {
         window.open(link, '_blank');
       }
-    });
-
-    // Event registration handling (обновлено: только имя в форме)
-    document.getElementById('register-event-btn').addEventListener('click', () => {
-      trackEvent('event_register_click');
-
-      const modal = document.createElement('div');
-      modal.className = 'modal';
-      modal.innerHTML = `
-        <h3>Регистрация на ивент</h3>
-        <p>Заполните форму для участия в предстоящем мероприятии The Limited Club.</p>
-        <form class="apply-form" action="#">
-          <label>Как вас зовут?</label>
-          <input type="text" name="name" placeholder="Ваше имя" required>
-          <button type="submit"><i class="fas fa-paper-plane"></i> Зарегистрироваться</button>
-          <button type="button" class="close-button"><i class="fas fa-times"></i> Закрыть</button>
-        </form>
-      `;
-
-      document.body.appendChild(modal);
-      setTimeout(() => modal.classList.add('active'), 10);
-      document.body.classList.add('modal-open');
-
-      modal.querySelector('.close-button').addEventListener('click', () => {
-        modal.classList.remove('active');
-        document.body.classList.remove('modal-open');
-        setTimeout(() => modal.remove(), 600);
-      });
-
-      modal.querySelector('.apply-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const name = formData.get('name');
-        if (!name || name.trim() === '') {
-          if (tg && tg.showPopup) {
-            tg.showPopup({
-              title: 'Ошибка',
-              message: 'Укажите ваше имя',
-              buttons: [{ type: 'ok' }]
-            });
-          } else {
-            alert('Укажите ваше имя');
-          }
-          return;
-        }
-        const response_id = generateUUID();
-        const additional = {
-          response_id,
-          name: name.trim()
-        };
-        const eventData = {
-          event: 'event_register',
-          user_id,
-          username,
-          first_name,
-          last_name,
-          timestamp: new Date().toISOString(),
-          additional
-        };
-        sendToSheet(eventData);
-
-        const botLink = `https://t.me/TheLimitedClub_bot?start=${response_id}`;
-        modal.querySelector('.apply-form').innerHTML = `
-          <p style="text-align: center; font-size: 18px; color: #d5fd02;">Регистрация отправлена!</p>
-          <p style="text-align: center; font-size: 15px; color: #ccc;">Переходим в Telegram-бот...</p>
-          <a href="#" class="bot-button tg-link" data-link="${botLink}">
-            <i class="fab fa-telegram-plane"></i> Перейти в бот
-          </a>
-          <button type="button" class="close-button"><i class="fas fa-times"></i> Закрыть</button>
-        `;
-        modal.querySelector('.close-button').addEventListener('click', () => {
-          modal.classList.remove('active');
-          document.body.classList.remove('modal-open');
-          setTimeout(() => modal.remove(), 600);
-        });
-
-        modal.querySelectorAll('.tg-link').forEach(button => {
-          button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const link = button.dataset.link;
-            if (/^https:\/\/t\.me\//.test(link) && window.Telegram && Telegram.WebApp) {
-              Telegram.WebApp.openTelegramLink(link);
-            } else {
-              window.open(link, '_blank');
-            }
-          });
-        });
-
-        // Автоматический переход в бот после отправки
-        setTimeout(() => {
-          if (window.Telegram && Telegram.WebApp) {
-            Telegram.WebApp.openTelegramLink(botLink);
-          } else {
-            window.open(botLink, '_blank');
-          }
-          // Закрываем модалку после перехода
-          setTimeout(() => {
-            modal.classList.remove('active');
-            document.body.classList.remove('modal-open');
-            modal.remove();
-          }, 2000); // 2 секунды на показ сообщения
-        }, 1000); // 1 секунда задержки на показ "Переходим..."
-      });
     });
 
     document.addEventListener('DOMContentLoaded', () => {
